@@ -190,8 +190,6 @@ class VertexBase:
             else:
                 url = "{}:{}".format(api_base, endpoint)
 
-            if stream is True:
-                url = url + "?alt=sse"
         return auth_header, url
 
     def _get_token_and_url(
