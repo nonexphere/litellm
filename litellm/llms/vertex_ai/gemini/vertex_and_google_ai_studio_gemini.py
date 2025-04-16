@@ -911,7 +911,10 @@ class VertexGeminiConfig(VertexAIBaseConfig, BaseConfig):
             "Content-Type": "application/json",
         }
         if api_key is not None:
-            default_headers["Authorization"] = f"Bearer {api_key}"
+            if api_base and 'cloudflare' in api_base:
+                default_headers["x-goog-api-key"] = f"{api_key}" 
+            else:
+                default_headers["Authorization"] = f"Bearer {api_key}"
         if headers is not None:
             default_headers.update(headers)
 
@@ -1058,6 +1061,7 @@ class VertexLLM(VertexBase):
 
         headers = VertexGeminiConfig().validate_environment(
             api_key=auth_header,
+            api_base=api_base,
             headers=extra_headers,
             model=model,
             messages=messages,
@@ -1075,7 +1079,6 @@ class VertexLLM(VertexBase):
                 "headers": headers,
             },
         )
-
         request_body_str = json.dumps(request_body)
         streaming_response = CustomStreamWrapper(
             completion_stream=None,
@@ -1145,13 +1148,13 @@ class VertexLLM(VertexBase):
 
         headers = VertexGeminiConfig().validate_environment(
             api_key=auth_header,
+            api_base=api_base,
             headers=extra_headers,
             model=model,
             messages=messages,
             optional_params=optional_params,
             litellm_params=litellm_params,
         )
-
         request_body = await async_transform_request_body(**data)  # type: ignore
         _async_client_params = {}
         if timeout:
